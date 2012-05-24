@@ -188,8 +188,6 @@ var priorityScrollingActive = false;
         	// If this is a priority scroller set priorityScrollingActive to true. Else false
         	if('slimScrollPriority' == me.attr('class') ) {
         		priorityScrollingActive = true;
-        	} else {
-        		priorityScrollingActive = false;
         	}
         	
           isOverPanel = true;
