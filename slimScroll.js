@@ -290,6 +290,10 @@ var priorityScrollingActive = false;
           getBarHeight();
           clearTimeout(queueHide);
 
+          if('slimScrollPriority' == me.attr('class') ) {
+          	priorityScrollingActive = true;
+          }          
+          
           // release wheel when bar reached top or bottom
           releaseScroll = allowPageScroll && percentScroll == ~~ percentScroll;
 
@@ -315,7 +319,9 @@ var priorityScrollingActive = false;
                 rail.fadeOut('slow');
                 
                 // Reset the priorityScrollingActive variable to false
-                priorityScrollingActive = false;
+                if('slimScrollPriority' == me.attr('class') ) {
+                	priorityScrollingActive = false;
+                }
               }
             }, 1000);
           }
