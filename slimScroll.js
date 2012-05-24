@@ -5,6 +5,9 @@
  * Version: 0.5.0
  * 
  */
+// Define a global variable to track priority scrolling. This can be used if there are scrolling divs within another scrolling div
+var priorityScrollingActive = false;
+
 (function($) {
 
   jQuery.fn.extend({
@@ -60,14 +63,14 @@
         var me = $(this);
 
         //ensure we are not binding it again
-        if (me.parent().hasClass('slimScrollDiv'))
+        if (me.parent().hasClass(o.wrapperClass))
         {
             //check if we should scroll existing instance
             if (scroll)
             {
                 //find bar and rail
-                bar = me.parent().find('.slimScrollBar');
-                rail = me.parent().find('.slimScrollRail');
+                bar = me.parent().find('.' + o.barClas);
+                rail = me.parent().find('.' + o.railClass);
 
                 //scroll by given amount of pixels
                 scrollContent( me.scrollTop() + parseInt(scroll), false, true);
@@ -75,22 +78,37 @@
 
             return;
         }
-
+        
         // wrap content
         var wrapper = $(divS)
           .addClass( o.wrapperClass )
-          .css({
-            position: 'relative',
+          .css({            
             overflow: 'hidden',
-            width: cwidth,
-            height: cheight
+            width: cwidth,            
           });
+
+        /* Added this code to reposition the div to which the slimScroll is applied */
+        var top = parseInt(me.css('top'), 10);
+        if (0 < top) {
+        	wrapper.css({
+        			position: 'absolute',
+        			top: me.css('top'),
+        			bottom: me.css('bottom')
+        	});
+        } else {
+        	wrapper.css({
+        			position: 'relative',
+        			height: cheight
+        	});
+        }
+        /* End fix for repositioning */
 
         // update style for the div
         me.css({
           overflow: 'hidden',
           width: cwidth,
-          height: cheight
+          height: cheight,
+          top: '0px'
         });
 
         // create scrollbar rail
@@ -166,6 +184,14 @@
 
         // show on parent mouseover
         me.hover(function(){
+        	
+        	// If this is a priority scroller set priorityScrollingActive to true. Else false
+        	if('slimScrollPriority' == me.attr('class') ) {
+        		priorityScrollingActive = true;
+        	} else {
+        		priorityScrollingActive = false;
+        	}
+        	
           isOverPanel = true;
           showBar();
           hideBar();
@@ -179,6 +205,9 @@
           // use mouse wheel only when mouse is over
           if (!isOverPanel) { return; }
 
+          // If priority scrolling is set and this is not a priority scroller return without doing anything.
+          if (priorityScrollingActive && 'slimScrollPriority' != me.attr('class')) { return ; }
+          
           var e = e || window.event;
 
           var delta = 0;
@@ -286,6 +315,9 @@
               { 
                 bar.fadeOut('slow');
                 rail.fadeOut('slow');
+                
+                // Reset the priorityScrollingActive variable to false
+                priorityScrollingActive = false;
               }
             }, 1000);
           }
